@@ -5,12 +5,18 @@
   "repository": "https://github.com/n0ir1/bandit-alerts.git",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.16.4",
+    "apollo-boost": "^0.1.17",
+    "apollo-link-http": "^1.5.5",
+    "apollo-link-ws": "^1.0.9",
+    "graphql": "^14.0.2",
+    "isomorphic-unfetch": "^3.0.0",
     "next": "^7.0.2",
+    "prop-types": "^15.6.2",
     "react": "^16.5.2",
+    "react-apollo": "^2.2.4",
     "react-dom": "^16.5.2",
-    "socket.io": "^2.1.1",
-    "socket.io-client": "^2.1.1"
+    "subscriptions-transport-ws": "^0.9.15",
+    "uuid": "^3.3.2"
   },
   "scripts": {
     "dev": "next",
