@@ -1,5 +1,5 @@
 import React from "react";
-import { DonationAlertsWithData } from "../components/DonationAlerts";
+import DonationAlerts from "../components/DonationAlerts";
 
 export default class Alerts extends React.Component {
   static getInitialProps(props) {
@@ -8,6 +8,6 @@ export default class Alerts extends React.Component {
   }
 
   render() {
-    return <DonationAlertsWithData id={this.props.id} />;
+    return <DonationAlerts id={this.props.id} />;
   }
 }
