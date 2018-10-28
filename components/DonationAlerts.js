@@ -13,6 +13,33 @@ const DONATION_ALERTS_SUBSCRIPTION = gql`
 `;
 
 export default class DonationAlerts extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      lang: "ru-RU",
+      sName: "Google русский",
+      rate: 0.8,
+      pitch: 1,
+      volume: 2
+    };
+  }
+  componentDidMount() {
+    this.synth = window.speechSynthesis;
+  }
+  componentWillUnmount() {
+    this.synth.cancel();
+  }
+  speak(text) {
+    const utterThis = new SpeechSynthesisUtterance();
+    utterThis.text = text;
+    utterThis.lang = this.state.lang;
+    utterThis.rate = this.state.rate;
+    utterThis.pitch = this.state.pitch;
+    utterThis.volume = this.state.volume;
+
+    this.synth.speak(utterThis);
+  }
   render() {
     const { id } = this.props;
     return (
@@ -24,7 +51,9 @@ export default class DonationAlerts extends React.Component {
           if (loading) return "Loading...";
           if (error) return `Error! ${error.message}`;
           const { username, amount, text } = data.newDonationAlert;
-          return <div>{`${username}: ${amount} ${text}`}</div>;
+
+          this.speak(text);
+          return <div>{text}</div>;
         }}
       </Subscription>
     );
