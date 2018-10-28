@@ -117,11 +117,11 @@ export default class TextField extends React.Component {
   };
 
   render() {
-    const { name, value } = this.props;
+    const { name, value, placeholder } = this.props;
     return (
       <Row>
         <Label isFocus={this.state.onFocus} text={value}>
-          {name.charAt(0).toUpperCase() + name.slice(1)}
+          {placeholder}
         </Label>
         <InputWrap isFocus={this.state.onFocus}>
           {this.props.multiline ? (

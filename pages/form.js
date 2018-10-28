@@ -119,20 +119,23 @@ export default class Form extends React.Component {
                   value={this.state.username}
                   autoComplete="off"
                   autoFocus
+                  placeholder="Username"
                 />
                 <TextField
                   onChange={this.handleChange}
                   name="amount"
                   value={this.state.amount}
                   autoComplete="off"
+                  placeholder="Amount"
                 />
                 <TextField
                   multiline
                   onChange={this.handleChange}
                   name="text"
                   value={this.state.text}
+                  placeholder="Text"
                 />
-                <Button>Submit</Button>
+                <Button>Send</Button>
               </FormContainer>
             </Container>
           );
