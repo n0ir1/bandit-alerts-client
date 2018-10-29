@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { v4 } from "uuid";
 
-const id = v4();
+const id = "1335c669-9964-4018-ad4b-710e565c3137";
 
 const Index = () => (
   <div>
