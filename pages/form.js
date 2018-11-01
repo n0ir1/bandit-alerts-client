@@ -69,22 +69,70 @@ export default class Form extends React.Component {
     this.state = {
       text: "",
       username: "",
-      amount: ""
+      amount: "",
+      usernameValid: false,
+      textValid: false,
+      amountValid: false,
+      formValid: false
     };
   }
 
-  handleSubmit = e => {
-    e.preventDefault();
-    this.reset();
-  };
-
-  reset() {
+  reset = () => {
     this.setState({
       text: "",
       username: "",
-      amount: ""
+      amount: "",
+      usernameValid: false,
+      textValid: false,
+      amountValid: false,
+      formValid: false
     });
-  }
+  };
+
+  isNumber = n => {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+  };
+
+  check = () => {
+    const { amount, username, text } = this.state;
+    this.setState(
+      {
+        usernameValid: this.isExist(username),
+        amountValid: this.isNumber(amount),
+        textValid: this.isExist(text)
+      },
+      this.validateForm
+    );
+  };
+
+  isExist = field => {
+    return !!field;
+  };
+
+  validateForm = () => {
+    const { textValid, amountValid, usernameValid } = this.state;
+    this.setState({
+      formValid: textValid && amountValid && usernameValid
+    });
+  };
+
+  handleSubmit = (e, donationAlertSend) => {
+    e.preventDefault();
+    const { username, amount, text, formValid } = this.state;
+
+    if (formValid) {
+      donationAlertSend({
+        variables: {
+          id: this.props.id,
+          username: username,
+          amount: parseInt(amount),
+          text: text
+        }
+      });
+
+      this.reset();
+    }
+  };
 
   handleChange = e => {
     const { name, value } = e.target;
@@ -96,22 +144,11 @@ export default class Form extends React.Component {
   render() {
     return (
       <Mutation mutation={DONATION_ALERTS_SEND}>
-        {(donationAlertSend, { data, error }) => {
+        {donationAlertSend => {
           return (
             <Container>
               <FormContainer
-                onSubmit={e => {
-                  e.preventDefault();
-                  this.reset();
-                  donationAlertSend({
-                    variables: {
-                      id: this.props.id,
-                      username: this.state.username,
-                      amount: parseInt(this.state.amount),
-                      text: this.state.text
-                    }
-                  });
-                }}
+                onSubmit={e => this.handleSubmit(e, donationAlertSend)}
               >
                 <TextField
                   onChange={this.handleChange}
@@ -135,7 +172,7 @@ export default class Form extends React.Component {
                   value={this.state.text}
                   placeholder="Text"
                 />
-                <Button>Send</Button>
+                <Button onClick={this.check}>Send</Button>
               </FormContainer>
             </Container>
           );
