@@ -104,8 +104,11 @@ export default class TextField extends React.Component {
   }
 
   static defaultProps = {
-    name: null,
-    value: ""
+    name: "",
+    value: "",
+    type: "text",
+    onChange: () => {},
+    placeholder: ""
   };
 
   onTextFieldFocus = e => {
@@ -117,7 +120,7 @@ export default class TextField extends React.Component {
   };
 
   render() {
-    const { name, value, placeholder } = this.props;
+    const { name, value, placeholder, type } = this.props;
     return (
       <Row>
         <Label isFocus={this.state.onFocus} text={value}>
@@ -126,7 +129,7 @@ export default class TextField extends React.Component {
         <InputWrap isFocus={this.state.onFocus}>
           {this.props.multiline ? (
             <TextArea
-              type={this.props.type || "text"}
+              type={type}
               value={value}
               onBlur={this.onTextFieldBlur}
               onFocus={this.onTextFieldFocus}
@@ -137,7 +140,7 @@ export default class TextField extends React.Component {
             />
           ) : (
             <Input
-              type={this.props.type || "text"}
+              type={type}
               value={value}
               onBlur={this.onTextFieldBlur}
               onFocus={this.onTextFieldFocus}
