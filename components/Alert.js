@@ -47,6 +47,8 @@ const AlertContainer = styled.div`
   flex-direction: column;
 `;
 
+const timeOut = 10000;
+
 export default class Alert extends React.Component {
   constructor(props) {
     super(props);
@@ -83,7 +85,20 @@ export default class Alert extends React.Component {
     utterThis.pitch = this.state.pitch;
     utterThis.volume = this.state.volume;
 
-    utterThis.addEventListener("end", this.hide);
+    utterThis.addEventListener("start", e => {
+      this.time = e.timeStamp;
+    });
+
+    utterThis.addEventListener("end", e => {
+      this.time = e.timeStamp - this.time;
+
+      if (this.time < timeOut) {
+        const delay = timeOut - this.time;
+        setTimeout(this.hide, delay);
+      } else {
+        this.hide();
+      }
+    });
 
     this.synth.speak(utterThis);
   };
