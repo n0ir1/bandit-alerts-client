@@ -98,7 +98,7 @@ export default class Form extends React.Component {
     this.setState(
       {
         usernameValid: this.isExist(username),
-        amountValid: this.isNumber(amount),
+        amountValid: this.isNumber(amount) && amount > 0,
         textValid: this.isExist(text)
       },
       this.validateForm
