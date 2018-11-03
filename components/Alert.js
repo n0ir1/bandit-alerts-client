@@ -68,13 +68,15 @@ export default class Alert extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.isShow === prevState.isShow) {
+    if (prevProps !== this.props) {
+      this.clear();
       this.show();
     }
   }
 
   componentWillUnmount() {
     this.synth.cancel();
+    this.clear();
   }
 
   speak = text => {
@@ -94,7 +96,7 @@ export default class Alert extends React.Component {
 
       if (this.time < timeOut) {
         const delay = timeOut - this.time;
-        setTimeout(this.hide, delay);
+        this.timer = setTimeout(this.hide, delay);
       } else {
         this.hide();
       }
@@ -110,6 +112,12 @@ export default class Alert extends React.Component {
   show = () => {
     this.setState({ isShow: true });
     this.speak(this.props.text);
+  };
+
+  clear = () => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
   };
 
   render() {
