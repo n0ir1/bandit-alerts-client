@@ -41,9 +41,9 @@ const Button = styled.button`
 const DONATION_ALERTS_SEND = gql`
   mutation DonationAlertsSend(
     $id: ID!
-    $username: String
-    $amount: Int
-    $text: String
+    $username: String!
+    $amount: Int!
+    $text: String!
   ) {
     donationAlertsSend(
       id: $id
