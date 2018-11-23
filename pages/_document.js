@@ -1,6 +1,21 @@
 import Document, { Head, Main, NextScript } from "next/document";
 import { ServerStyleSheet } from "styled-components";
 
+const GlobalStyle = `
+  * {
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-size: 14px;
+  }
+
+  html {
+    overflow: hidden;
+  }
+
+  html, body, #__next {
+    height: 100%;
+  }
+`;
+
 export default class MyDocument extends Document {
   static getInitialProps({ renderPage }) {
     const sheet = new ServerStyleSheet();
@@ -14,7 +29,10 @@ export default class MyDocument extends Document {
   render() {
     return (
       <html>
-        <Head>{this.props.styleTags}</Head>
+        <Head>
+          <style dangerouslySetInnerHTML={{ __html: GlobalStyle }} />
+          {this.props.styleTags}
+        </Head>
         <body>
           <Main />
           <NextScript />
