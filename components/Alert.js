@@ -1,5 +1,16 @@
 import React from "react";
+import gql from "graphql-tag";
+import { Query } from "react-apollo";
 import styled, { keyframes } from "styled-components";
+
+const FETCH_USER_BY_ID = gql`
+  query($id: ID) {
+    user(id: $id) {
+      userId
+      username
+    }
+  }
+`;
 
 const bounceIn = keyframes`
 0% {
@@ -121,14 +132,24 @@ export default class Alert extends React.Component {
   };
 
   render() {
-    const { username, amount, text } = this.props;
+    const { donatorId, amount, text } = this.props;
     return (
       this.state.isShow && (
         <Animation>
           <AlertContainer>
             <Amount>{`Сумма ${amount}₽`}</Amount>
             <Picture />
-            <User>{`От ${username}`}:</User>
+            <User>
+              {`От `}
+              <Query query={FETCH_USER_BY_ID} variables={{ id: donatorId }}>
+                {({ loading, error, data }) => {
+                  if (loading) return null;
+                  if (error || !data.user) return "Anonymous";
+                  return data.user.username;
+                }}
+              </Query>
+              :
+            </User>
             <Text>{text}</Text>
           </AlertContainer>
         </Animation>
