@@ -1,8 +1,9 @@
 import React from "react";
 import gql from "graphql-tag";
-import { Mutation } from "react-apollo";
+import { Mutation, withApollo } from "react-apollo";
 import TextField from "../components/TextField";
 import styled from "styled-components";
+import * as uuid from "uuid";
 
 const Container = styled.div`
   display: flex;
@@ -38,44 +39,80 @@ const Button = styled.button`
   }
 `;
 
-const DONATION_ALERTS_SEND = gql`
-  mutation DonationAlertsSend(
-    $id: ID!
-    $username: String!
-    $amount: Int!
-    $text: String!
-  ) {
-    donationAlertsSend(
-      id: $id
-      username: $username
-      amount: $amount
-      text: $text
-    ) {
-      id
-      username
-      amount
-      text
+const FETCH_USER = gql`
+  query {
+    user {
+      userId
     }
   }
 `;
 
-export default class Form extends React.Component {
-  static getInitialProps(props) {
-    const { id } = props.query;
-    return { id };
+const FETCH_USER_BY_NAME = gql`
+  query($name: String) {
+    user(name: $name) {
+      userId
+    }
   }
-  constructor(props) {
-    super(props);
-    this.state = {
-      text: "",
-      username: "",
-      amount: "",
-      usernameValid: false,
-      textValid: false,
-      amountValid: false,
-      formValid: false
-    };
+`;
+
+const DONATION_ALERTS_SEND = gql`
+  mutation DonationAlertsSend(
+    $userId: ID!
+    $donatorId: ID!
+    $amount: Int!
+    $text: String!
+  ) {
+    donationAlertsSend(
+      userId: $userId
+      donatorId: $donatorId
+      amount: $amount
+      text: $text
+    )
   }
+`;
+
+class Form extends React.Component {
+  state = {
+    text: "",
+    donatorId: null,
+    userId: null,
+    username: "",
+    amount: "",
+    usernameValid: false,
+    textValid: false,
+    amountValid: false,
+    formValid: false
+  };
+
+  componentDidMount() {
+    this.fetchUser();
+  }
+
+  fetchUser = async () => {
+    try {
+      const user = await this.props.client.query({
+        query: FETCH_USER
+      });
+      const donatorId = user.data.user.userId;
+      this.setState({ donatorId });
+    } catch (error) {
+      const donatorId = uuid.v4();
+      this.setState({ donatorId });
+    }
+  };
+
+  fetchUserByName = async name => {
+    try {
+      const user = await this.props.client.query({
+        query: FETCH_USER_BY_NAME,
+        variables: { name }
+      });
+      const userId = user.data.user.userId;
+      this.setState({ userId });
+    } catch (error) {
+      return null;
+    }
+  };
 
   reset = () => {
     this.setState({
@@ -116,17 +153,15 @@ export default class Form extends React.Component {
     });
   };
 
-  handleSubmit = (e, donationAlertSend) => {
-    e.preventDefault();
-    const { username, amount, text, formValid } = this.state;
-
+  sendForm = donationAlertSend => {
+    const { amount, text, formValid, userId, donatorId } = this.state;
     if (formValid) {
       donationAlertSend({
         variables: {
-          id: this.props.id,
-          username: username,
+          userId,
+          donatorId,
           amount: parseInt(amount),
-          text: text
+          text
         }
       });
 
@@ -148,10 +183,14 @@ export default class Form extends React.Component {
           return (
             <Container>
               <FormContainer
-                onSubmit={e => this.handleSubmit(e, donationAlertSend)}
+                onSubmit={e => {
+                  e.preventDefault();
+                  this.sendForm(donationAlertSend);
+                }}
               >
                 <TextField
                   onChange={this.handleChange}
+                  onBlur={() => this.fetchUserByName(this.state.username)}
                   name="username"
                   value={this.state.username}
                   autoComplete="off"
@@ -181,3 +220,5 @@ export default class Form extends React.Component {
     );
   }
 }
+
+export default withApollo(Form);
