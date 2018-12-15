@@ -108,6 +108,7 @@ export default class TextField extends React.Component {
     value: "",
     type: "text",
     onChange: () => {},
+    onBlur: () => {},
     placeholder: ""
   };
 
@@ -116,6 +117,7 @@ export default class TextField extends React.Component {
   };
 
   onTextFieldBlur = e => {
+    this.props.onBlur();
     this.setState({ onFocus: false });
   };
 
