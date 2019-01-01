@@ -7,16 +7,14 @@ export const Nav = () => (
       <a>Form Page</a>
     </Link>
     <Access>
-      {({ userId }) => (
-        <>
-          <Link href="/alerts">
-            <a>Alerts Page</a>
-          </Link>
-          <Link href={{ pathname: "/history", query: { id: userId } }}>
-            <a>History Page</a>
-          </Link>
-        </>
-      )}
+      <>
+        <Link href="/alerts">
+          <a>Alerts Page</a>
+        </Link>
+        <Link href="/history">
+          <a>History Page</a>
+        </Link>
+      </>
     </Access>
   </>
 );

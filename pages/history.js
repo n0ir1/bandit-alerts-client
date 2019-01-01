@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
-import Router from "next/router";
+import { withAuth } from "../components/withAuth";
 import HistoryAlerts from "../components/HistoryAlerts";
 
 const GET_ALERTS = gql`
@@ -27,22 +27,18 @@ const NEW_DONATION_ALERT_SUBSCRIPTION = gql`
   }
 `;
 
-const History = props => (
+const History = ({ user: { userId } }) => (
   <Query query={GET_ALERTS} ssr={false}>
     {({ subscribeToMore, loading, error, ...result }) => {
       if (loading) return null;
-      if (error) {
-        Router.push("/");
-        return null;
-      }
-      const id = props.id;
+      if (error) return error;
       return (
         <HistoryAlerts
           {...result}
           subscribeToNewAlerts={() =>
             subscribeToMore({
               document: NEW_DONATION_ALERT_SUBSCRIPTION,
-              variables: { id },
+              variables: { id: userId },
               updateQuery: (prev, { subscriptionData }) => {
                 if (!subscriptionData.data) return prev;
                 const newAlerts = subscriptionData.data.newDonationAlert;
@@ -58,8 +54,4 @@ const History = props => (
   </Query>
 );
 
-History.getInitialProps = ctx => {
-  return { id: ctx.query.id };
-};
-
-export default History;
+export default withAuth(History);
