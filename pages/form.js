@@ -1,9 +1,9 @@
 import React from "react";
 import gql from "graphql-tag";
-import { Mutation, withApollo } from "react-apollo";
+import { Mutation } from "react-apollo";
 import TextField from "../components/TextField";
 import styled from "styled-components";
-import * as uuid from "uuid";
+import { withValidateSendForm } from "../components/withValidateSendForm";
 
 const Container = styled.div`
   display: flex;
@@ -39,20 +39,10 @@ const Button = styled.button`
   }
 `;
 
-const FETCH_USER = gql`
-  query {
-    user {
-      userId
-    }
-  }
-`;
-
-const FETCH_USER_BY_NAME = gql`
-  query($name: String) {
-    user(name: $name) {
-      userId
-    }
-  }
+const ErrorMessage = styled.div`
+  color: #f44245;
+  margin: 0 8px;
+  font-size: 10px;
 `;
 
 const DONATION_ALERTS_SEND = gql`
@@ -71,154 +61,69 @@ const DONATION_ALERTS_SEND = gql`
   }
 `;
 
-class Form extends React.Component {
-  state = {
-    text: "",
-    donatorId: null,
-    userId: null,
-    username: "",
-    amount: "",
-    usernameValid: false,
-    textValid: false,
-    amountValid: false,
-    formValid: false
-  };
+const Form = ({
+  username,
+  amount,
+  text,
+  formValid,
+  userId,
+  donatorId,
+  errors,
+  clearForm,
+  handleChange,
+  handleBlur
+}) => (
+  <Mutation mutation={DONATION_ALERTS_SEND} onCompleted={() => clearForm()}>
+    {donationAlertSend => {
+      return (
+        <Container>
+          <FormContainer
+            onSubmit={e => {
+              e.preventDefault();
+              if (formValid) {
+                donationAlertSend({
+                  variables: {
+                    userId,
+                    donatorId,
+                    amount: parseInt(amount),
+                    text
+                  }
+                });
+              }
+            }}
+          >
+            <TextField
+              onChange={handleChange}
+              onBlur={handleBlur}
+              name="username"
+              value={username}
+              autoComplete="off"
+              autoFocus
+              placeholder="Username"
+            />
+            {errors.username && <ErrorMessage>{errors.username}</ErrorMessage>}
+            <TextField
+              onChange={handleChange}
+              name="amount"
+              value={amount}
+              autoComplete="off"
+              placeholder="Amount"
+            />
+            {errors.amount && <ErrorMessage>{errors.amount}</ErrorMessage>}
+            <TextField
+              multiline
+              onChange={handleChange}
+              name="text"
+              value={text}
+              placeholder="Text"
+            />
+            {errors.text && <ErrorMessage>{errors.text}</ErrorMessage>}
+            <Button>Send</Button>
+          </FormContainer>
+        </Container>
+      );
+    }}
+  </Mutation>
+);
 
-  componentDidMount() {
-    this.fetchUser();
-  }
-
-  fetchUser = async () => {
-    try {
-      const user = await this.props.client.query({
-        query: FETCH_USER
-      });
-      const donatorId = user.data.user.userId;
-      this.setState({ donatorId });
-    } catch (error) {
-      const donatorId = uuid.v4();
-      this.setState({ donatorId });
-    }
-  };
-
-  fetchUserByName = async name => {
-    try {
-      const user = await this.props.client.query({
-        query: FETCH_USER_BY_NAME,
-        variables: { name }
-      });
-      const userId = user.data.user.userId;
-      this.setState({ userId });
-    } catch (error) {
-      return null;
-    }
-  };
-
-  reset = () => {
-    this.setState({
-      text: "",
-      username: "",
-      amount: "",
-      usernameValid: false,
-      textValid: false,
-      amountValid: false,
-      formValid: false
-    });
-  };
-
-  isNumber = n => {
-    return !isNaN(parseFloat(n)) && isFinite(n);
-  };
-
-  check = () => {
-    const { amount, username, text } = this.state;
-    this.setState(
-      {
-        usernameValid: this.isExist(username),
-        amountValid: this.isNumber(amount) && amount > 0,
-        textValid: this.isExist(text)
-      },
-      this.validateForm
-    );
-  };
-
-  isExist = field => {
-    return !!field;
-  };
-
-  validateForm = () => {
-    const { textValid, amountValid, usernameValid } = this.state;
-    this.setState({
-      formValid: textValid && amountValid && usernameValid
-    });
-  };
-
-  sendForm = donationAlertSend => {
-    const { amount, text, formValid, userId, donatorId } = this.state;
-    if (formValid) {
-      donationAlertSend({
-        variables: {
-          userId,
-          donatorId,
-          amount: parseInt(amount),
-          text
-        }
-      });
-
-      this.reset();
-    }
-  };
-
-  handleChange = e => {
-    const { name, value } = e.target;
-    this.setState({
-      [name]: value
-    });
-  };
-
-  render() {
-    return (
-      <Mutation mutation={DONATION_ALERTS_SEND}>
-        {donationAlertSend => {
-          return (
-            <Container>
-              <FormContainer
-                onSubmit={e => {
-                  e.preventDefault();
-                  this.sendForm(donationAlertSend);
-                }}
-              >
-                <TextField
-                  onChange={this.handleChange}
-                  onBlur={() => this.fetchUserByName(this.state.username)}
-                  name="username"
-                  value={this.state.username}
-                  autoComplete="off"
-                  autoFocus
-                  placeholder="Username"
-                />
-                <TextField
-                  onChange={this.handleChange}
-                  name="amount"
-                  value={this.state.amount}
-                  autoComplete="off"
-                  placeholder="Amount"
-                />
-                <TextField
-                  multiline
-                  onChange={this.handleChange}
-                  name="text"
-                  value={this.state.text}
-                  placeholder="Text"
-                />
-                <Button onClick={this.check}>Send</Button>
-              </FormContainer>
-            </Container>
-          );
-        }}
-      </Mutation>
-    );
-  }
-}
-
-export default withApollo(Form);
+export default withValidateSendForm(Form);
