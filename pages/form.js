@@ -1,8 +1,9 @@
 import React from "react";
 import gql from "graphql-tag";
 import { Mutation } from "react-apollo";
-import TextField from "../components/TextField";
 import styled from "styled-components";
+import TextField from "../components/TextField";
+import Button from "../components/Button";
 import { withValidateSendForm } from "../components/withValidateSendForm";
 
 const Container = styled.div`
@@ -16,27 +17,8 @@ const FormContainer = styled.form`
   width: 300px;
 `;
 
-const Button = styled.button`
-  color: #6c757d;
-  background-color: transparent;
-  background-image: none;
-  border: 1px solid #6c757d;
+const ButtonWrap = styled.div`
   margin: 16px 8px 8px;
-  display: inline-block;
-  text-align: center;
-  vertical-align: middle;
-  user-select: none;
-  cursor: pointer;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  outline: none;
-  border-radius: 0.25rem;
-
-  &:hover {
-    color: #343a40;
-    border: 1px solid #343a40;
-  }
 `;
 
 const ErrorMessage = styled.div`
@@ -118,7 +100,9 @@ const Form = ({
               placeholder="Text"
             />
             {errors.text && <ErrorMessage>{errors.text}</ErrorMessage>}
-            <Button>Send</Button>
+            <ButtonWrap>
+              <Button label="Send" full />
+            </ButtonWrap>
           </FormContainer>
         </Container>
       );

@@ -1,17 +1,33 @@
 import React from "react";
+import { Query, Mutation, ApolloConsumer } from "react-apollo";
 import gql from "graphql-tag";
-import { Query } from "react-apollo";
-import { Login } from "./Login";
-import { Signup } from "./Signup";
+import styled from "styled-components";
 import { User } from "./User";
 import TextField from "./TextField";
-import styled from "styled-components";
+import Button from "./Button";
+import { setToken } from "../auth";
 
 const FETCH_USER = gql`
   query {
     user {
       userId
       username
+    }
+  }
+`;
+
+const SIGN_UP = gql`
+  mutation Signup($username: String!, $password: String!) {
+    signup(username: $username, password: $password) {
+      token
+    }
+  }
+`;
+
+const LOGIN = gql`
+  query Login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      token
     }
   }
 `;
@@ -28,10 +44,14 @@ const Row = styled.div`
   width: 300px;
 `;
 
+const ButtonWrap = styled.div`
+  margin: 8px;
+`;
+
 class Auth extends React.Component {
   state = {
     username: "",
-    password: ""
+    password: "",
   };
 
   render() {
@@ -68,10 +88,41 @@ class Auth extends React.Component {
                     />
                   </Row>
                   <Row>
-                    <Signup username={username} password={password} />
+                    <Mutation
+                      mutation={SIGN_UP}
+                      onCompleted={data => setToken(data.signup.token)}
+                    >
+                      {signup => (
+                        <ButtonWrap>
+                          <Button
+                            onClick={() =>
+                              signup({ variables: { username, password } })
+                            }
+                            label="Signup"
+                            full
+                          />
+                        </ButtonWrap>
+                      )}
+                    </Mutation>
                   </Row>
                   <Row>
-                    <Login username={username} password={password} />
+                    <ApolloConsumer>
+                      {client => (
+                        <ButtonWrap>
+                          <Button
+                            label="Login"
+                            full
+                            onClick={async () => {
+                              const { data } = await client.query({
+                                query: LOGIN,
+                                variables: { username, password }
+                              });
+                              setToken(data.login.token);
+                            }}
+                          />
+                        </ButtonWrap>
+                      )}
+                    </ApolloConsumer>
                   </Row>
                 </Container>
               </>
