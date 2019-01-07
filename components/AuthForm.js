@@ -1,20 +1,13 @@
 import React from "react";
-import { Query, Mutation, ApolloConsumer } from "react-apollo";
+import { Mutation, ApolloConsumer } from "react-apollo";
+import { Formik } from "formik";
+import * as Yup from "yup";
 import gql from "graphql-tag";
 import styled from "styled-components";
-import { User } from "./User";
 import TextField from "./TextField";
 import Button from "./Button";
+import ErrorMessage from "../components/ErrorMessage";
 import { setToken } from "../auth";
-
-const FETCH_USER = gql`
-  query {
-    user {
-      userId
-      username
-    }
-  }
-`;
 
 const SIGN_UP = gql`
   mutation Signup($username: String!, $password: String!) {
@@ -48,90 +41,127 @@ const ButtonWrap = styled.div`
   margin: 8px;
 `;
 
-class Auth extends React.Component {
-  state = {
-    username: "",
-    password: "",
-  };
+const AuthForm = () => (
+  <Formik
+    initialValues={{
+      username: "",
+      password: ""
+    }}
+    validationSchema={Yup.object().shape({
+      username: Yup.string().required("This field is required"),
+      password: Yup.string().required("This field is required")
+    })}
+    onSubmit={(values, { resetForm }) => {
+      resetForm(false);
+    }}
+  >
+    {props => {
+      const {
+        values: { username, password },
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        isValid,
+        isSubmitting,
+        setFieldError,
+        handleSubmit
+      } = props;
 
-  render() {
-    const { username, password } = this.state;
-    return (
-      <Query query={FETCH_USER} ssr={false}>
-        {({ loading, error, data }) => {
-          if (loading) return null;
-          if (error || !data.user)
-            return (
-              <>
-                <Container>
-                  <Row>
-                    <TextField
-                      type="text"
-                      placeholder="Username"
-                      autoComplete="off"
-                      autoFocus={true}
-                      onChange={e =>
-                        this.setState({ username: e.target.value })
-                      }
-                      value={username}
+      return (
+        <>
+          <Container>
+            <Row>
+              <TextField
+                type="text"
+                placeholder="Username"
+                name="username"
+                autoComplete="off"
+                autoFocus={true}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={username}
+              />
+              {errors.username && touched.username && (
+                <ErrorMessage message={errors.username} />
+              )}
+            </Row>
+            <Row>
+              <TextField
+                type="password"
+                autoComplete="off"
+                placeholder="Password"
+                name="password"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={password}
+              />
+              {errors.password && touched.password && (
+                <ErrorMessage message={errors.password} />
+              )}
+              {errors.signup && <ErrorMessage message={errors.signup} />}
+              {errors.login && <ErrorMessage message={errors.login} />}
+            </Row>
+            <Row>
+              <Mutation
+                mutation={SIGN_UP}
+                onCompleted={data => setToken(data.signup.token)}
+                onError={error =>
+                  setFieldError("signup", "User same name already exists")
+                }
+              >
+                {signup => (
+                  <ButtonWrap>
+                    <Button
+                      onClick={e => {
+                        if (isValid && !isSubmitting) {
+                          signup({ variables: { username, password } });
+                          handleSubmit(e);
+                        }
+                      }}
+                      label="Signup"
+                      full
+                      disabled={!isValid}
                     />
-                  </Row>
-                  <Row>
-                    <TextField
-                      type="password"
-                      autoComplete="off"
-                      placeholder="Password"
-                      onChange={e =>
-                        this.setState({ password: e.target.value })
-                      }
-                      value={password}
+                  </ButtonWrap>
+                )}
+              </Mutation>
+            </Row>
+            <Row>
+              <ApolloConsumer>
+                {client => (
+                  <ButtonWrap>
+                    <Button
+                      label="Login"
+                      full
+                      disabled={!isValid}
+                      onClick={async e => {
+                        if (isValid && !isSubmitting) {
+                          handleSubmit(e);
+                          try {
+                            const { data } = await client.query({
+                              query: LOGIN,
+                              variables: { username, password }
+                            });
+                            setToken(data.login.token);
+                          } catch (error) {
+                            setFieldError(
+                              "login",
+                              "Username or password is incorrect"
+                            );
+                          }
+                        }
+                      }}
                     />
-                  </Row>
-                  <Row>
-                    <Mutation
-                      mutation={SIGN_UP}
-                      onCompleted={data => setToken(data.signup.token)}
-                    >
-                      {signup => (
-                        <ButtonWrap>
-                          <Button
-                            onClick={() =>
-                              signup({ variables: { username, password } })
-                            }
-                            label="Signup"
-                            full
-                          />
-                        </ButtonWrap>
-                      )}
-                    </Mutation>
-                  </Row>
-                  <Row>
-                    <ApolloConsumer>
-                      {client => (
-                        <ButtonWrap>
-                          <Button
-                            label="Login"
-                            full
-                            onClick={async () => {
-                              const { data } = await client.query({
-                                query: LOGIN,
-                                variables: { username, password }
-                              });
-                              setToken(data.login.token);
-                            }}
-                          />
-                        </ButtonWrap>
-                      )}
-                    </ApolloConsumer>
-                  </Row>
-                </Container>
-              </>
-            );
-          return <User user={data.user} />;
-        }}
-      </Query>
-    );
-  }
-}
+                  </ButtonWrap>
+                )}
+              </ApolloConsumer>
+            </Row>
+          </Container>
+        </>
+      );
+    }}
+  </Formik>
+);
 
-export default Auth;
+export default AuthForm;
