@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { withTheme } from "styled-components";
+import styled from "styled-components";
 import { lighten } from "polished";
 
 const Row = styled.div`
@@ -168,4 +168,4 @@ class TextField extends React.Component {
   }
 }
 
-export default withTheme(TextField);
+export default TextField;
