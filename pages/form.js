@@ -126,6 +126,9 @@ const Form = ({ user }) => (
                             setFieldError("user", "User not found");
                           }
                         }}
+                        error={
+                          (errors.username && touched.username) || errors.user
+                        }
                         name="username"
                         value={username}
                         autoComplete="off"
@@ -145,6 +148,7 @@ const Form = ({ user }) => (
                     value={amount}
                     autoComplete="off"
                     placeholder="Amount"
+                    error={errors.amount && touched.amount}
                   />
                   {errors.amount && touched.amount && (
                     <ErrorMessage message={errors.amount} />
@@ -156,6 +160,7 @@ const Form = ({ user }) => (
                     name="text"
                     value={text}
                     placeholder="Text"
+                    error={errors.text && touched.text}
                   />
                   {errors.text && touched.text && (
                     <ErrorMessage message={errors.text} />

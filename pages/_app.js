@@ -1,5 +1,6 @@
 import App, { Container } from "next/app";
 import React from "react";
+import { ThemeProvider } from "styled-components";
 import withApolloClient from "../lib/with-apollo-client";
 import { ApolloProvider } from "react-apollo";
 
@@ -9,7 +10,15 @@ class MyApp extends App {
     return (
       <Container>
         <ApolloProvider client={apolloClient}>
-          <Component {...pageProps} />
+          <ThemeProvider
+            theme={{
+              black: "#000000",
+              blue: "#1976d2",
+              red: "#f44245"
+            }}
+          >
+            <Component {...pageProps} />
+          </ThemeProvider>
         </ApolloProvider>
       </Container>
     );

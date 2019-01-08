@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { darken } from "polished";
+import { darken, lighten } from "polished";
 
 const Button = styled.button`
   color: ${({ color }) => color};
@@ -22,6 +22,12 @@ const Button = styled.button`
     color: ${({ color }) => darken(0.5, color)};
     border: 1px solid ${({ color }) => darken(0.5, color)};
   }
+
+  &:disabled {
+    color: ${({ color }) => lighten(0.3, color)};
+    cursor: default;
+    border: 1px solid ${({ color }) => lighten(0.3, color)};
+  }
 `;
 
 export default ({
@@ -29,9 +35,10 @@ export default ({
   children,
   label = "",
   color = "#6c757d",
-  full = false
+  full = false,
+  disabled = false
 }) => (
-  <Button onClick={onClick} full={full} color={color}>
+  <Button onClick={onClick} full={full} color={color} disabled={disabled}>
     {label ? label : children}
   </Button>
 );

@@ -81,6 +81,11 @@ const AuthForm = () => (
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={username}
+                error={
+                  errors.signup ||
+                  errors.login ||
+                  (errors.username && touched.username)
+                }
               />
               {errors.username && touched.username && (
                 <ErrorMessage message={errors.username} />
@@ -95,6 +100,11 @@ const AuthForm = () => (
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={password}
+                error={
+                  errors.signup ||
+                  errors.login ||
+                  (errors.password && touched.password)
+                }
               />
               {errors.password && touched.password && (
                 <ErrorMessage message={errors.password} />
