@@ -4,13 +4,14 @@ import { withAuth } from "../components/withAuth";
 import HistoryAlerts from "../components/HistoryAlerts";
 
 const GET_ALERTS = gql`
-  query {
+  query getAlerts {
     alerts {
       id
       userId
       donatorId
       amount
       text
+      createdAt
     }
   }
 `;
@@ -23,12 +24,13 @@ const NEW_DONATION_ALERT_SUBSCRIPTION = gql`
       donatorId
       amount
       text
+      createdAt
     }
   }
 `;
 
 const History = ({ user: { userId } }) => (
-  <Query query={GET_ALERTS} ssr={false}>
+  <Query query={GET_ALERTS}>
     {({ subscribeToMore, loading, error, ...result }) => {
       if (loading) return null;
       if (error) return error;
@@ -43,7 +45,7 @@ const History = ({ user: { userId } }) => (
                 if (!subscriptionData.data) return prev;
                 const newAlerts = subscriptionData.data.newDonationAlert;
                 return {
-                  alerts: [...prev.alerts, newAlerts]
+                  alerts: [newAlerts, ...prev.alerts]
                 };
               }
             })
