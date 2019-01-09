@@ -4,7 +4,7 @@ import { Query } from "react-apollo";
 import styled, { keyframes } from "styled-components";
 
 const FETCH_USER_BY_ID = gql`
-  query($id: ID) {
+  query User($id: ID) {
     user(id: $id) {
       userId
       username

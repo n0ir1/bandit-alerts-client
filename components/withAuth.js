@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 import redirect from "../lib/redirect";
 
 const FETCH_USER = gql`
-  query {
+  query User {
     user {
       userId
       username

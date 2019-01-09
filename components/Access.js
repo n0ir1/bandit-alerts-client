@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import { Query } from "react-apollo";
 
 const FETCH_USER = gql`
-  query {
+  query User {
     user {
       userId
     }

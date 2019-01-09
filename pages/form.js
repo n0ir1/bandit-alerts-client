@@ -21,11 +21,11 @@ const FormContainer = styled.form`
 `;
 
 const ButtonWrap = styled.div`
-  margin: 16px 8px 8px;
+  margin: 16px 0px 8px;
 `;
 
 const FETCH_USER = gql`
-  query {
+  query User {
     user {
       userId
     }
@@ -33,7 +33,7 @@ const FETCH_USER = gql`
 `;
 
 const FETCH_USER_BY_NAME = gql`
-  query($name: String) {
+  query User($name: String) {
     user(name: $name) {
       userId
     }
