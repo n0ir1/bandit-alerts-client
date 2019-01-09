@@ -3,6 +3,7 @@ import React from "react";
 import { ThemeProvider } from "styled-components";
 import withApolloClient from "../lib/with-apollo-client";
 import { ApolloProvider } from "react-apollo";
+import Layout from "../components/Layout";
 
 class MyApp extends App {
   render() {
@@ -17,7 +18,9 @@ class MyApp extends App {
               red: "#f44245"
             }}
           >
-            <Component {...pageProps} />
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
           </ThemeProvider>
         </ApolloProvider>
       </Container>

@@ -1,106 +1,115 @@
 import React from "react";
 import styled from "styled-components";
-import { lighten } from "polished";
+import { lighten, darken } from "polished";
 
-const Row = styled.div`
-  margin: 8px;
-  border: 0;
-  display: flex;
-  padding: 0;
-  z-index: 0;
-  position: relative;
-  min-width: 0;
-  flex-direction: column;
-  vertical-align: top;
-`;
+const THEME = {
+  SIZE: "10px",
+  SET_SIZE(value) {
+    return (this.SIZE = value);
+  },
+  get INPUT_PADDING() {
+    return `calc(1.7 * ${this.SIZE})`;
+  },
+  get INPUT_FONT_SIZE() {
+    return `calc(1.4 * ${this.SIZE})`;
+  },
+  get LABEL_FOCUS_FONT_SIZE() {
+    return `calc(1.2 * ${this.SIZE})`;
+  },
+  get FIELD_PADDING() {
+    return `calc(0.8 * ${this.SIZE})`;
+  },
+  get LABEL_FOCUS_TOP() {
+    return `calc(0.6 * ${this.SIZE})`;
+  },
+  get LABEL_TOP() {
+    return `calc(${this.INPUT_PADDING} + 1.5 * ${this.FIELD_PADDING})`;
+  }
+};
 
 const Label = styled.label`
-  color: ${({ isFocus, theme }) =>
-    isFocus ? lighten(0.1, theme.blue) : lighten(0.45, theme.black)};
-  padding: 0;
-  ${({ error, theme }) => (error ? `color: ${theme.red}` : null)};
-  line-height: 1;
-  transform-origin: top left;
-  top: 0;
+  color: ${({ theme, error, isFocus }) =>
+    error && !isFocus
+      ? theme.red
+      : isFocus
+      ? theme.blue
+      : lighten(0.6, theme.black)};
+  font-size: ${({ isFocus, text }) =>
+    isFocus || text ? THEME.LABEL_FOCUS_FONT_SIZE : THEME.INPUT_FONT_SIZE};
   left: 0;
+  line-height: ${THEME.INPUT_FONT_SIZE};
+  pointer-events: none;
   position: absolute;
-  transition: color 200ms cubic-bezier(0, 0, 0.2, 1) 0ms;
-  transform: ${({ isFocus, text }) =>
-    isFocus || text
-      ? "translate(0, 1.5px) scale(0.75)"
-      : `translate(0, 24px) scale(1)`};
+  top: ${({ isFocus, text }) =>
+    isFocus || text ? THEME.LABEL_FOCUS_TOP : THEME.LABEL_TOP};
+  transition-duration: 0.35s;
+  transition-property: top, font-size, color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
-const InputWrap = styled.div`
+const InputProps = ({ error, theme }) => `
+  background-color: transparent;
+  border: none;
+  border-bottom: 1.5px solid ${lighten(0.45, theme.black)};
+  ${error &&
+    `margin-top: 1px;
+    border-bottom-color: ${theme.red};
+  `}
+  border-radius: 0;
+  color: ${theme.black};
+  display: flex;
+  font-size: ${THEME.INPUT_FONT_SIZE};
+  outline: none;
+  padding: ${THEME.FIELD_PADDING} 0;
+  width: 100%;
+
+  &:hover {
+    border-bottom-color: ${
+      error ? darken(0.2, theme.red) : lighten(0.2, theme.black)
+    };
+  }
+`;
+
+const Bar = styled.span`
+  display: flex;
   position: relative;
-  cursor: text;
-  display: inline-flex;
-  font-size: 1rem;
-  line-height: 1.1875em;
-  align-items: center;
-  ${Label} + & {
-    margin-top: 16px;
-  }
-  &:before {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    content: "\00a0";
-    position: absolute;
-    transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 10ms;
-    border-bottom: 1px solid ${({ theme }) => lighten(0.45, theme.black)};
-    ${({ error, theme }) =>
-      error ? `border-bottom: 2px solid ${theme.red}` : null};
-    pointer-events: none;
-  }
-  &:hover:before {
-    border-bottom: 2px solid ${({ theme }) => lighten(0.2, theme.black)};
-    ${({ error, theme }) =>
-      error ? `border-bottom: 2px solid ${theme.red}` : null};
-  }
-  &:after {
-    left: 0;
-    right: 0;
+  width: 100%;
+
+  &::before,
+  &::after {
+    background-color: ${({ theme }) => theme.blue};
     bottom: 0;
     content: "";
-    transform: "scaleX(${({ isFocus }) => (isFocus ? "1px" : "0")})";
+    height: 2px;
     position: absolute;
-    transition: transform 200ms cubic-bezier(0, 0, 0.2, 1) 0ms;
-    border-bottom: ${({ isFocus, theme }) =>
-      isFocus
-        ? `2px solid ${theme.blue}`
-        : `1px solid ${lighten(0.2, theme.black)}`};
-    ${({ error, theme }) => (error ? `border-bottom: 2px ${theme.red}` : null)};
-    pointer-events: none;
+    transition-duration: 0.2s;
+    transition-property: width, background-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    width: ${({ isFocus }) => (isFocus ? "50%" : 0)};
+  }
+
+  &::before {
+    left: 50%;
+  }
+
+  &::after {
+    right: 50%;
   }
 `;
 
 const Input = styled.input`
-  width: 100%;
-  border: 0;
-  margin: 0;
-  padding: 6px 0 7px;
-  display: block;
-  min-width: 0;
-  box-sizing: content-box;
-  background: none;
-  &:focus {
-    outline: none;
-  }
+  ${InputProps}
 `;
 
 const TextArea = styled.textarea`
-  border: none;
-  margin: 0;
-  width: 100%;
-  display: block;
-  padding: 6px 0 7px;
-  background: none;
-  box-sizing: content-box;
+  ${InputProps}
   resize: none;
-  &:focus {
-    outline: none;
-  }
+`;
+
+const Row = styled.div`
+  position: relative;
+  padding-top: ${THEME.INPUT_PADDING};
+  padding-bottom: calc(${THEME.INPUT_PADDING} / 3);
 `;
 
 class TextField extends React.Component {
@@ -115,11 +124,13 @@ class TextField extends React.Component {
   static defaultProps = {
     name: "",
     value: "",
+    size: "10px",
     type: "text",
     onChange: () => {},
     onBlur: () => {},
     error: "",
-    placeholder: ""
+    placeholder: "",
+    multiline: false
   };
 
   onTextFieldFocus = e => {
@@ -132,37 +143,40 @@ class TextField extends React.Component {
   };
 
   render() {
-    const { name, value, placeholder, type, error } = this.props;
+    const {
+      name,
+      value,
+      placeholder,
+      type,
+      error,
+      multiline,
+      maxlength,
+      size,
+      ...others
+    } = this.props;
+    const inputElementProps = {
+      ...others,
+      name,
+      error,
+      value,
+      type,
+      isFocus: this.state.onFocus,
+      onBlur: this.onTextFieldBlur,
+      onFocus: this.onTextFieldFocus,
+      maxLength: maxlength
+    };
+    THEME.SET_SIZE(size);
     return (
       <Row>
+        {multiline ? (
+          <TextArea {...inputElementProps} />
+        ) : (
+          <Input {...inputElementProps} />
+        )}
+        <Bar isFocus={this.state.onFocus} />
         <Label isFocus={this.state.onFocus} text={value} error={error}>
           {placeholder}
         </Label>
-        <InputWrap isFocus={this.state.onFocus} error={error}>
-          {this.props.multiline ? (
-            <TextArea
-              type={type}
-              value={value}
-              onBlur={this.onTextFieldBlur}
-              onFocus={this.onTextFieldFocus}
-              autoFocus={this.props.autoFocus}
-              autoComplete={this.props.autoComplete}
-              onChange={this.props.onChange}
-              name={name}
-            />
-          ) : (
-            <Input
-              type={type}
-              value={value}
-              onBlur={this.onTextFieldBlur}
-              onFocus={this.onTextFieldFocus}
-              autoFocus={this.props.autoFocus}
-              autoComplete={this.props.autoComplete}
-              onChange={this.props.onChange}
-              name={name}
-            />
-          )}
-        </InputWrap>
       </Row>
     );
   }

@@ -27,18 +27,24 @@ const LOGIN = gql`
 
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+  padding-top: 5px;
 `;
 
 const Row = styled.div`
-  width: 300px;
+  width: 150px;
+  display: flex;
+  align-items: end;
+  position: relative;
+`;
+
+const ErrorMessageWrap = styled.div`
+  position: absolute;
+  bottom: 10px;
 `;
 
 const ButtonWrap = styled.div`
-  margin: 8px;
+  align-self: center;
+  margin: 0 3px;
 `;
 
 const AuthForm = () => (
@@ -77,7 +83,7 @@ const AuthForm = () => (
                 placeholder="Username"
                 name="username"
                 autoComplete="off"
-                autoFocus={true}
+                size="8px"
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={username}
@@ -87,9 +93,11 @@ const AuthForm = () => (
                   (errors.username && touched.username)
                 }
               />
-              {errors.username && touched.username && (
-                <ErrorMessage message={errors.username} />
-              )}
+              <ErrorMessageWrap>
+                {errors.username && touched.username && (
+                  <ErrorMessage message={errors.username} />
+                )}
+              </ErrorMessageWrap>
             </Row>
             <Row>
               <TextField
@@ -97,6 +105,7 @@ const AuthForm = () => (
                 autoComplete="off"
                 placeholder="Password"
                 name="password"
+                size="8px"
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={password}
@@ -106,67 +115,63 @@ const AuthForm = () => (
                   (errors.password && touched.password)
                 }
               />
-              {errors.password && touched.password && (
-                <ErrorMessage message={errors.password} />
+              <ErrorMessageWrap>
+                {errors.password && touched.password && (
+                  <ErrorMessage message={errors.password} />
+                )}
+                {errors.signup && <ErrorMessage message={errors.signup} />}
+                {errors.login && <ErrorMessage message={errors.login} />}
+              </ErrorMessageWrap>
+            </Row>
+            <Mutation
+              mutation={SIGN_UP}
+              onCompleted={data => setToken(data.signup.token)}
+              onError={error =>
+                setFieldError("signup", "User same name already exists")
+              }
+            >
+              {signup => (
+                <ButtonWrap>
+                  <Button
+                    onClick={e => {
+                      if (isValid && !isSubmitting) {
+                        signup({ variables: { username, password } });
+                        handleSubmit(e);
+                      }
+                    }}
+                    label="Signup"
+                    disabled={!isValid}
+                  />
+                </ButtonWrap>
               )}
-              {errors.signup && <ErrorMessage message={errors.signup} />}
-              {errors.login && <ErrorMessage message={errors.login} />}
-            </Row>
-            <Row>
-              <Mutation
-                mutation={SIGN_UP}
-                onCompleted={data => setToken(data.signup.token)}
-                onError={error =>
-                  setFieldError("signup", "User same name already exists")
-                }
-              >
-                {signup => (
-                  <ButtonWrap>
-                    <Button
-                      onClick={e => {
-                        if (isValid && !isSubmitting) {
-                          signup({ variables: { username, password } });
-                          handleSubmit(e);
+            </Mutation>
+            <ApolloConsumer>
+              {client => (
+                <ButtonWrap>
+                  <Button
+                    label="Login"
+                    disabled={!isValid}
+                    onClick={async e => {
+                      if (isValid && !isSubmitting) {
+                        handleSubmit(e);
+                        try {
+                          const { data } = await client.query({
+                            query: LOGIN,
+                            variables: { username, password }
+                          });
+                          setToken(data.login.token);
+                        } catch (error) {
+                          setFieldError(
+                            "login",
+                            "Username or password is incorrect"
+                          );
                         }
-                      }}
-                      label="Signup"
-                      full
-                      disabled={!isValid}
-                    />
-                  </ButtonWrap>
-                )}
-              </Mutation>
-            </Row>
-            <Row>
-              <ApolloConsumer>
-                {client => (
-                  <ButtonWrap>
-                    <Button
-                      label="Login"
-                      full
-                      disabled={!isValid}
-                      onClick={async e => {
-                        if (isValid && !isSubmitting) {
-                          handleSubmit(e);
-                          try {
-                            const { data } = await client.query({
-                              query: LOGIN,
-                              variables: { username, password }
-                            });
-                            setToken(data.login.token);
-                          } catch (error) {
-                            setFieldError(
-                              "login",
-                              "Username or password is incorrect"
-                            );
-                          }
-                        }
-                      }}
-                    />
-                  </ButtonWrap>
-                )}
-              </ApolloConsumer>
-            </Row>
+                      }
+                    }}
+                  />
+                </ButtonWrap>
+              )}
+            </ApolloConsumer>
           </Container>
         </>
       );

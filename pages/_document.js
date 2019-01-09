@@ -18,6 +18,7 @@ const GlobalStyle = `
 
   html, body, #__next {
     height: 100%;
+    margin: 0;
   }
 `;
 
