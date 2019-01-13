@@ -21,6 +21,5 @@ const Layout = ({ children }) => (
     <Header />
     <ContentWrap>{children}</ContentWrap>
   </Wrap>
-);
 
 export default Layout;
