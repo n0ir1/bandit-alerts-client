@@ -137,6 +137,10 @@ class TextField extends React.Component {
     multiline: false
   };
 
+  handleChange = e => {
+    this.props.onChange(e);
+  };
+
   onTextFieldFocus = e => {
     this.setState({ onFocus: true });
   };
@@ -164,6 +168,7 @@ class TextField extends React.Component {
       error,
       value,
       type,
+      onChange: this.handleChange,
       isFocus: this.state.onFocus,
       onBlur: this.onTextFieldBlur,
       onFocus: this.onTextFieldFocus,

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { darken, lighten } from "polished";
 
-const Button = styled.button`
+const Btn = styled.button`
   color: ${({ color }) => color};
   background-color: transparent;
   background-image: none;
@@ -30,7 +30,7 @@ const Button = styled.button`
   }
 `;
 
-export default ({
+const Button = ({
   onClick = () => {},
   children,
   label = "",
@@ -38,7 +38,9 @@ export default ({
   full = false,
   disabled = false
 }) => (
-  <Button onClick={onClick} full={full} color={color} disabled={disabled}>
+  <Btn onClick={onClick} full={full} color={color} disabled={disabled}>
     {label ? label : children}
-  </Button>
+  </Btn>
 );
+
+export default Button;

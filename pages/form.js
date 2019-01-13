@@ -65,16 +65,22 @@ const Form = ({ user }) => (
       amount: ""
     }}
     validationSchema={Yup.object().shape({
-      userId: Yup.string().nullable(),
-      text: Yup.string().required("This field is required"),
+      userId: Yup.string()
+        .nullable(false)
+        .typeError("User not found"),
+      text: Yup.string()
+        .required("This field is required")
+        .max(200, "Text must be at most 200 characters"),
       username: Yup.string().required("This field is required"),
       amount: Yup.number()
         .typeError("Value is not a number or is less than 1")
         .required("This field is required")
         .min(1, "Value is not a number or is less than 1")
     })}
-    onSubmit={(values, { resetForm }) => {
-      resetForm(false);
+    onSubmit={(values, { resetForm, isValid }) => {
+      if (isValid) {
+        resetForm(false);
+      }
     }}
   >
     {props => {
@@ -85,7 +91,6 @@ const Form = ({ user }) => (
         handleChange,
         isValid,
         isSubmitting,
-        setFieldError,
         setFieldValue,
         handleSubmit,
         handleBlur
@@ -97,8 +102,8 @@ const Form = ({ user }) => (
               <Container>
                 <FormContainer
                   onSubmit={e => {
+                    handleSubmit(e);
                     if (isValid && !isSubmitting) {
-                      handleSubmit(e);
                       donationAlertSend({
                         variables: {
                           userId: userId,
@@ -121,13 +126,14 @@ const Form = ({ user }) => (
                               query: FETCH_USER_BY_NAME,
                               variables: { name: username }
                             });
+
                             setFieldValue("userId", data.user.userId);
                           } catch (e) {
-                            setFieldError("user", "User not found");
+                            setFieldValue("userId", null);
                           }
                         }}
                         error={
-                          (errors.username && touched.username) || errors.user
+                          (errors.username && touched.username) || errors.userId
                         }
                         name="username"
                         value={username}
@@ -140,7 +146,7 @@ const Form = ({ user }) => (
                   {errors.username && touched.username && (
                     <ErrorMessage message={errors.username} />
                   )}
-                  {errors.user && <ErrorMessage message={errors.user} />}
+                  {errors.userId && <ErrorMessage message={errors.userId} />}
                   <TextField
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -160,6 +166,7 @@ const Form = ({ user }) => (
                     name="text"
                     value={text}
                     placeholder="Text"
+                    maxlength={200}
                     error={errors.text && touched.text}
                   />
                   {errors.text && touched.text && (

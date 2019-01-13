@@ -57,8 +57,10 @@ const AuthForm = () => (
       username: Yup.string().required("This field is required"),
       password: Yup.string().required("This field is required")
     })}
-    onSubmit={(values, { resetForm }) => {
-      resetForm(false);
+    onSubmit={(values, { resetForm, isValid }) => {
+      if (isValid) {
+        resetForm(false);
+      }
     }}
   >
     {props => {
@@ -152,8 +154,8 @@ const AuthForm = () => (
                     label="Login"
                     disabled={!isValid}
                     onClick={async e => {
+                      handleSubmit(e);
                       if (isValid && !isSubmitting) {
-                        handleSubmit(e);
                         try {
                           const { data } = await client.query({
                             query: LOGIN,
