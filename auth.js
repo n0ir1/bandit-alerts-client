@@ -1,13 +1,21 @@
 import cookies from "js-cookie";
 import cookie from "cookie";
 
-export const setToken = token => {
-  cookies.set("token", token);
+export const setTokens = ({ accessToken, refreshToken }) => {
+  cookies.set("accessToken", accessToken);
+  cookies.set("refreshToken", refreshToken);
+
   location.reload();
 };
 
-export const removeToken = () => {
-  cookies.remove("token");
+export const getRefreshToken = () => {
+  return cookies.get("refreshToken");
+};
+
+export const removeTokens = () => {
+  cookies.remove("accessToken");
+  cookies.remove("refreshToken");
+
   location.reload();
 };
 

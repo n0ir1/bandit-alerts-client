@@ -7,12 +7,13 @@ import styled from "styled-components";
 import TextField from "./TextField";
 import Button from "./Button";
 import ErrorMessage from "../components/ErrorMessage";
-import { setToken } from "../auth";
+import { setTokens } from "../auth";
 
 const SIGN_UP = gql`
   mutation Signup($username: String!, $password: String!) {
     signup(username: $username, password: $password) {
-      token
+      accessToken
+      refreshToken
     }
   }
 `;
@@ -20,7 +21,8 @@ const SIGN_UP = gql`
 const LOGIN = gql`
   query Login($username: String!, $password: String!) {
     login(username: $username, password: $password) {
-      token
+      accessToken
+      refreshToken
     }
   }
 `;
@@ -127,7 +129,7 @@ const AuthForm = () => (
             </Row>
             <Mutation
               mutation={SIGN_UP}
-              onCompleted={data => setToken(data.signup.token)}
+              onCompleted={data => setTokens(data.signup)}
               onError={error =>
                 setFieldError("signup", "User same name already exists")
               }
@@ -161,7 +163,7 @@ const AuthForm = () => (
                             query: LOGIN,
                             variables: { username, password }
                           });
-                          setToken(data.login.token);
+                          setTokens(data.login);
                         } catch (error) {
                           setFieldError(
                             "login",

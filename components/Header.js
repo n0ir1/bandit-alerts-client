@@ -5,7 +5,7 @@ import Link from "next/link";
 import Button from "./Button";
 import AuthForm from "./AuthForm";
 
-import { removeToken } from "../auth";
+import { removeTokens } from "../auth";
 
 const FETCH_USER = gql`
   query User {
@@ -87,7 +87,7 @@ const Header = () => (
             return (
               <User>
                 <Username>{data.user.username}</Username>
-                <Button label="Logout" onClick={removeToken} />
+                <Button label="Logout" onClick={removeTokens} />
               </User>
             );
           }}
