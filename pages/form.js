@@ -77,10 +77,8 @@ const Form = ({ user }) => (
         .required("This field is required")
         .min(1, "Value is not a number or is less than 1")
     })}
-    onSubmit={(values, { resetForm, isValid }) => {
-      if (isValid) {
-        resetForm(false);
-      }
+    onSubmit={(values, { resetForm }) => {
+      resetForm(false);
     }}
   >
     {props => {

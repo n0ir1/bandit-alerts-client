@@ -59,10 +59,8 @@ const AuthForm = () => (
       username: Yup.string().required("This field is required"),
       password: Yup.string().required("This field is required")
     })}
-    onSubmit={(values, { resetForm, isValid }) => {
-      if (isValid) {
-        resetForm(false);
-      }
+    onSubmit={(values, { resetForm }) => {
+      resetForm(false);
     }}
   >
     {props => {
@@ -138,9 +136,9 @@ const AuthForm = () => (
                 <ButtonWrap>
                   <Button
                     onClick={e => {
+                      handleSubmit(e);
                       if (isValid && !isSubmitting) {
                         signup({ variables: { username, password } });
-                        handleSubmit(e);
                       }
                     }}
                     label="Signup"
