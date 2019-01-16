@@ -1,6 +1,5 @@
 const isProduction = process.env.NODE_ENV === "production";
-const host = process.env.HOST_NAME;
-console.log(host, process.env.NODE_ENV);
+const url = "68.183.218.185";
 
 const devConfig = {
   gqlUrl: "http://localhost:8080/graphql",
@@ -8,8 +7,8 @@ const devConfig = {
 };
 
 const config = {
-  gqlUrl: `http://${host}:8080/graphql`,
-  wsUrl: `ws://${host}:8080/graphql`
+  gqlUrl: `http://${url}:8080/graphql`,
+  wsUrl: `ws://${url}:8080/graphql`
 };
 
 const conf = isProduction ? config : devConfig;
